@@ -44,3 +44,5 @@ tzlocal==4.2
 urllib3==1.26.14
 validators==0.20.0
 zipp==3.15.0
+matplotlib==3.7.0
+plotly==5.13.1
