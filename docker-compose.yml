@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - "8515:8501"
+    volumes:
+      - ./:/app
