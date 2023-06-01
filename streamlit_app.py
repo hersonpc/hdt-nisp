@@ -231,82 +231,87 @@ if sel_visao == analise_institucional:
                         "Relacionado": "Relacionado a um paciente",
                         "Quantidade": "Total Notificações",
                     },
-                    color_discrete_map={'SIM':'#0068c9',
-                                        'NÃO':'#b3b3b3',}
+                    color_discrete_map={
+                        'SIM': '#0068c9',
+                        'NÃO': '#b3b3b3',
+                    }
                 )
                 fig.update_layout(height=300)
                 fig.update_layout(margin = dict(t=70, l=0, r=0, b=0))
                 st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
-
-    with st.expander('DIAGRAMA DE COMPOSIÇÃO', expanded=True):
-        
-        st.subheader('DIAGRAMAS DE COMPOSIÇÃO INSTITUCIONAL', anchor='composicao_institucional')
-        tabs = st.tabs(["Grau de dano vs Setor", "Tipo de incidente vs Setor", "Horário do incidente vs Setor"])
-        
-        with tabs[0].container():
-            df_agg_grau_dano_por_localidade = (
-                df_mes
-                .groupby(['mes', 'classificacao_de_incidentes', 'grau_do_dano', 'qual_local_onde_ocorreu_o_incidente'])
-                .size()
-                .reset_index(name='Quantidade')
-                .rename(columns={'grau_do_dano': 'grau', 'qual_local_onde_ocorreu_o_incidente': 'unidade'})        
-            ).sort_values(by=['classificacao_de_incidentes', 'grau', 'unidade'], ascending=False)
-            # st.dataframe(df_agg_grau_dano_por_localidade)
+    reg_classificados = len(df_mes[~df_mes.classificacao_de_incidentes.isna()])
+    if reg_classificados <= 0:
+        st.error(f'Os registros deste período selecionado, ainda estão pendentes de serem classificados. Após a classificação os dados serão exibidos aqui.')
+    else:
+        with st.expander('DIAGRAMA DE COMPOSIÇÃO', expanded=True):
             
-            fig = px.sunburst(
-                df_agg_grau_dano_por_localidade, 
-                path=['classificacao_de_incidentes', 'grau', 'unidade'], 
-                values='Quantidade',
-                # color='classificacao_de_incidentes',
-                # color_continuous_scale=[(0, "red"), (0.5, "green"), (1, "blue")],
-            )
-            fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
-            fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
-
-            fig.update_layout(height=700)
-            st.plotly_chart(fig, theme="streamlit", use_container_width=True)
-
-        with tabs[1].container():
-            df_agg_temp = (
-                df_mes
-                .groupby(['classificacao_de_incidentes', 'qual_o_tipo_do_incidente', 'qual_local_onde_ocorreu_o_incidente'])
-                .size()
-                .reset_index(name='Quantidade')
-                .rename(columns={'qual_o_tipo_do_incidente': 'tipo', 'qual_local_onde_ocorreu_o_incidente': 'unidade'})        
-            ).sort_values(by=['classificacao_de_incidentes', 'tipo', 'unidade'], ascending=False)
-            # st.dataframe(df_agg_temp)
+            st.subheader('DIAGRAMAS DE COMPOSIÇÃO INSTITUCIONAL', anchor='composicao_institucional')
+            tabs = st.tabs(["Grau de dano vs Setor", "Tipo de incidente vs Setor", "Horário do incidente vs Setor"])
             
-            fig = px.sunburst(
-                df_agg_temp, 
-                path=['classificacao_de_incidentes', 'tipo', 'unidade'], 
-                values='Quantidade',
-            )
-            fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
-            fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+            with tabs[0].container():
+                df_agg_grau_dano_por_localidade = (
+                    df_mes
+                    .groupby(['mes', 'classificacao_de_incidentes', 'grau_do_dano', 'qual_local_onde_ocorreu_o_incidente'])
+                    .size()
+                    .reset_index(name='Quantidade')
+                    .rename(columns={'grau_do_dano': 'grau', 'qual_local_onde_ocorreu_o_incidente': 'unidade'})        
+                ).sort_values(by=['classificacao_de_incidentes', 'grau', 'unidade'], ascending=False)
+                # st.dataframe(df_agg_grau_dano_por_localidade)
+                
+                fig = px.sunburst(
+                    df_agg_grau_dano_por_localidade, 
+                    path=['classificacao_de_incidentes', 'grau', 'unidade'], 
+                    values='Quantidade',
+                    # color='classificacao_de_incidentes',
+                    # color_continuous_scale=[(0, "red"), (0.5, "green"), (1, "blue")],
+                )
+                fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
+                fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
 
-            fig.update_layout(height=700)
-            st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+                fig.update_layout(height=700)
+                st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
-        with tabs[2].container():
-            df_agg_temp = (
-                df_mes
-                .groupby(['mes', 'classificacao_de_incidentes', 'qual_horario_do_incidente', 'qual_local_onde_ocorreu_o_incidente'])
-                .size()
-                .reset_index(name='Quantidade')
-                .rename(columns={'qual_horario_do_incidente': 'tipo', 'qual_local_onde_ocorreu_o_incidente': 'unidade'})
-            ).sort_values(by=['classificacao_de_incidentes', 'tipo', 'unidade'], ascending=False)
-            
-            fig = px.sunburst(
-                df_agg_temp, 
-                path=['classificacao_de_incidentes', 'tipo', 'unidade'], 
-                values='Quantidade',
-            )
-            fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
-            fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+            with tabs[1].container():
+                df_agg_temp = (
+                    df_mes
+                    .groupby(['classificacao_de_incidentes', 'qual_o_tipo_do_incidente', 'qual_local_onde_ocorreu_o_incidente'])
+                    .size()
+                    .reset_index(name='Quantidade')
+                    .rename(columns={'qual_o_tipo_do_incidente': 'tipo', 'qual_local_onde_ocorreu_o_incidente': 'unidade'})        
+                ).sort_values(by=['classificacao_de_incidentes', 'tipo', 'unidade'], ascending=False)
+                # st.dataframe(df_agg_temp)
+                
+                fig = px.sunburst(
+                    df_agg_temp, 
+                    path=['classificacao_de_incidentes', 'tipo', 'unidade'], 
+                    values='Quantidade',
+                )
+                fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
+                fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
 
-            fig.update_layout(height=700)
-            st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+                fig.update_layout(height=700)
+                st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+
+            with tabs[2].container():
+                df_agg_temp = (
+                    df_mes
+                    .groupby(['mes', 'classificacao_de_incidentes', 'qual_horario_do_incidente', 'qual_local_onde_ocorreu_o_incidente'])
+                    .size()
+                    .reset_index(name='Quantidade')
+                    .rename(columns={'qual_horario_do_incidente': 'tipo', 'qual_local_onde_ocorreu_o_incidente': 'unidade'})
+                ).sort_values(by=['classificacao_de_incidentes', 'tipo', 'unidade'], ascending=False)
+
+                fig = px.sunburst(
+                    df_agg_temp, 
+                    path=['classificacao_de_incidentes', 'tipo', 'unidade'], 
+                    values='Quantidade',
+                )
+                fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
+                fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+
+                fig.update_layout(height=700)
+                st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
 
 if sel_visao == analise_setorial:
@@ -323,83 +328,87 @@ if sel_visao == analise_setorial:
         col[2].metric("Notificações já classificadas", f"{reg_classificados}  ({p_reg_classificados}%)")
         col[3].metric("Pendentes de classificação", f"{reg_pendentes}  ({p_reg_pendentes}%)")
 
-    with st.expander('DIAGRAMA DE COMPOSIÇÃO', expanded=True):
-        st.subheader('DIAGRAMA DE COMPOSIÇÃO SETORIAL', anchor='composicao')
-        
-        # cols = st.columns([1, 4])
-        # sel_setor = cols[0].radio('Qual a localidade?', df_mes.sort_values(by='qual_local_onde_ocorreu_o_incidente', ascending=True).qual_local_onde_ocorreu_o_incidente.unique())
-        
-        cols = st.columns([1])
+    reg_classificados = len(df_mes_setor[~df_mes_setor.classificacao_de_incidentes.isna()])
+    if reg_classificados <= 0:
+        st.error(f'Os registros deste período selecionado, ainda estão pendentes de serem classificados. Após a classificação os dados serão exibidos aqui.')
+    else:
+        with st.expander('DIAGRAMA DE COMPOSIÇÃO', expanded=True):
+            st.subheader('DIAGRAMA DE COMPOSIÇÃO SETORIAL', anchor='composicao')
+            
+            # cols = st.columns([1, 4])
+            # sel_setor = cols[0].radio('Qual a localidade?', df_mes.sort_values(by='qual_local_onde_ocorreu_o_incidente', ascending=True).qual_local_onde_ocorreu_o_incidente.unique())
+            
+            cols = st.columns([1])
 
-        with cols[0].container():
-            if len(df_mes.query(f'qual_local_onde_ocorreu_o_incidente=="{sel_setor}"')) <= 0:
-                st.warning(f'Não foram encontrados registros para o setor "{sel_setor}" no mês selecionado')
-            else:
-                # st.dataframe(df_mes.query(f'qual_local_onde_ocorreu_o_incidente=="{sel_setor}"'))
-                tabs = st.tabs(["Grau de dano vs Tipo", "Grau de dano vs Horário do incidente", "Horário do incidente vs Tipo"])
+            with cols[0].container():
+                if len(df_mes.query(f'qual_local_onde_ocorreu_o_incidente=="{sel_setor}"')) <= 0:
+                    st.warning(f'Não foram encontrados registros para o setor "{sel_setor}" no mês selecionado')
+                else:
+                    # st.dataframe(df_mes.query(f'qual_local_onde_ocorreu_o_incidente=="{sel_setor}"'))
+                    tabs = st.tabs(["Grau de dano vs Tipo", "Grau de dano vs Horário do incidente", "Horário do incidente vs Tipo"])
 
-                with tabs[0].container():
-                    df_agg_grau_dano_por_localidade = (
-                        df_mes.query(f'qual_local_onde_ocorreu_o_incidente=="{sel_setor}"')
-                        .groupby(['mes', 'classificacao_de_incidentes', 'grau_do_dano', 'qual_o_tipo_do_incidente'])
-                        .size()
-                        .reset_index(name='Quantidade')
-                        .rename(columns={'classificacao_de_incidentes': 'v1', 'grau_do_dano': 'v2', 'qual_o_tipo_do_incidente': 'v3'})        
-                    ).sort_values(by=['v1', 'v2', 'v3'], ascending=False)
-                    # st.dataframe(df_agg_grau_dano_por_localidade)
+                    with tabs[0].container():
+                        df_agg_grau_dano_por_localidade = (
+                            df_mes.query(f'qual_local_onde_ocorreu_o_incidente=="{sel_setor}"')
+                            .groupby(['mes', 'classificacao_de_incidentes', 'grau_do_dano', 'qual_o_tipo_do_incidente'])
+                            .size()
+                            .reset_index(name='Quantidade')
+                            .rename(columns={'classificacao_de_incidentes': 'v1', 'grau_do_dano': 'v2', 'qual_o_tipo_do_incidente': 'v3'})        
+                        ).sort_values(by=['v1', 'v2', 'v3'], ascending=False)
+                        # st.dataframe(df_agg_grau_dano_por_localidade)
+                        
+                        fig = px.sunburst(
+                            df_agg_grau_dano_por_localidade, 
+                            path=['v1', 'v2', 'v3'], 
+                            values='Quantidade',
+                        )
+                        fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
+                        fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+
+                        fig.update_layout(height=700)
+                        st.plotly_chart(fig, theme="streamlit", use_container_width=True)
                     
-                    fig = px.sunburst(
-                        df_agg_grau_dano_por_localidade, 
-                        path=['v1', 'v2', 'v3'], 
-                        values='Quantidade',
-                    )
-                    fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
-                    fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+                    with tabs[1].container():
+                        df_agg_grau_dano_por_localidade = (
+                            df_mes.query(f'qual_local_onde_ocorreu_o_incidente=="{sel_setor}"')
+                            .groupby(['classificacao_de_incidentes', 'grau_do_dano', 'qual_horario_do_incidente'])
+                            .size()
+                            .reset_index(name='Quantidade')
+                            .rename(columns={'classificacao_de_incidentes': 'v1', 'grau_do_dano': 'v2', 'qual_horario_do_incidente': 'v3'})        
+                        ).sort_values(by=['v1', 'v2', 'v3'], ascending=False)
+                        # st.dataframe(df_agg_grau_dano_por_localidade)
+                        
+                        fig = px.sunburst(
+                            df_agg_grau_dano_por_localidade, 
+                            path=['v1', 'v2', 'v3'], 
+                            values='Quantidade',
+                        )
+                        fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
+                        fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
 
-                    fig.update_layout(height=700)
-                    st.plotly_chart(fig, theme="streamlit", use_container_width=True)
-                
-                with tabs[1].container():
-                    df_agg_grau_dano_por_localidade = (
-                        df_mes.query(f'qual_local_onde_ocorreu_o_incidente=="{sel_setor}"')
-                        .groupby(['classificacao_de_incidentes', 'grau_do_dano', 'qual_horario_do_incidente'])
-                        .size()
-                        .reset_index(name='Quantidade')
-                        .rename(columns={'classificacao_de_incidentes': 'v1', 'grau_do_dano': 'v2', 'qual_horario_do_incidente': 'v3'})        
-                    ).sort_values(by=['v1', 'v2', 'v3'], ascending=False)
-                    # st.dataframe(df_agg_grau_dano_por_localidade)
-                    
-                    fig = px.sunburst(
-                        df_agg_grau_dano_por_localidade, 
-                        path=['v1', 'v2', 'v3'], 
-                        values='Quantidade',
-                    )
-                    fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
-                    fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+                        fig.update_layout(height=700)
+                        st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
-                    fig.update_layout(height=700)
-                    st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+                    with tabs[2].container():
+                        df_agg_grau_dano_por_localidade = (
+                            df_mes.query(f'qual_local_onde_ocorreu_o_incidente=="{sel_setor}"')
+                            .groupby(['qual_horario_do_incidente', 'classificacao_de_incidentes', 'qual_o_tipo_do_incidente'])
+                            .size()
+                            .reset_index(name='Quantidade')
+                            .rename(columns={'qual_horario_do_incidente': 'v1', 'classificacao_de_incidentes': 'v2', 'qual_o_tipo_do_incidente': 'v3'})        
+                        ).sort_values(by=['v1', 'v2', 'v3'], ascending=False)
+                        # st.dataframe(df_agg_grau_dano_por_localidade)
+                        
+                        fig = px.sunburst(
+                            df_agg_grau_dano_por_localidade, 
+                            path=['v1', 'v2', 'v3'], 
+                            values='Quantidade',
+                        )
+                        fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
+                        fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
 
-                with tabs[2].container():
-                    df_agg_grau_dano_por_localidade = (
-                        df_mes.query(f'qual_local_onde_ocorreu_o_incidente=="{sel_setor}"')
-                        .groupby(['qual_horario_do_incidente', 'classificacao_de_incidentes', 'qual_o_tipo_do_incidente'])
-                        .size()
-                        .reset_index(name='Quantidade')
-                        .rename(columns={'qual_horario_do_incidente': 'v1', 'classificacao_de_incidentes': 'v2', 'qual_o_tipo_do_incidente': 'v3'})        
-                    ).sort_values(by=['v1', 'v2', 'v3'], ascending=False)
-                    # st.dataframe(df_agg_grau_dano_por_localidade)
-                    
-                    fig = px.sunburst(
-                        df_agg_grau_dano_por_localidade, 
-                        path=['v1', 'v2', 'v3'], 
-                        values='Quantidade',
-                    )
-                    fig.update_traces(hovertemplate='<b>%{label}</b><br>Quantidade: <b>%{value}</b>')
-                    fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
-
-                    fig.update_layout(height=700)
-                    st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+                        fig.update_layout(height=700)
+                        st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
 
 
