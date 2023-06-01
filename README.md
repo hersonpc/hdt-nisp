@@ -2,7 +2,12 @@
 
 ## Dashboard
 
-(<https://tecnologia.isgsaude.org/dashboard/nisp/)[https://tecnologia.isgsaude.org/dashboard/nisp/]>
+[https://tecnologia.isgsaude.org/dashboard/nisp/](https://tecnologia.isgsaude.org/dashboard/nisp/)
+
+<img width="1218" alt="image" src="https://github.com/hersonpc/hdt-nisp/assets/14059473/08125013-08cd-453a-80b7-285eb13ff11d">
+
+<img width="1212" alt="image" src="https://github.com/hersonpc/hdt-nisp/assets/14059473/230bb328-598a-4f7f-8225-7714bae0dd42">
+
 
 ## Dados
 
